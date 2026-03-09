@@ -26,12 +26,18 @@ if (! Auth::user()->hasGlobalAdmin()) {
 
 if (isset($_POST['sub_type']) && ! empty($_POST['sub_type'])) {
     $status = 'error';
-    $message = 'Error removing custom';
-    if (dbUpdate(['sensor_custom' => 'No'], 'sensors', '`sensor_id` = ?', [$_POST['sensor_id']]) >= 0) {
+    $message = 'Error resetting custom values';
+    if (dbUpdate([
+        'sensor_custom' => 'No',
+        'sensor_limit' => null,
+        'sensor_limit_warn' => null,
+        'sensor_limit_low_warn' => null,
+        'sensor_limit_low' => null,
+    ], 'sensors', '`sensor_id` = ?', [$_POST['sensor_id']]) >= 0) {
         $status = 'ok';
-        $message = 'Custom limit removed. New one will be set up in rediscovery';
+        $message = 'Custom limits reset';
     } else {
-        $message = 'Couldn\'t not remove custom. Enable debug and check logfile';
+        $message = 'Could not reset custom values. Enable debug and check logfile';
     }
 } else {
     if (! is_numeric($_POST['device_id']) || ! is_numeric($_POST['sensor_id'])) {

@@ -26,17 +26,22 @@ if (! Auth::user()->hasGlobalAdmin()) {
 
 $status = 'error';
 $message = 'Error updating sensor limit';
-$device_id = $_POST['device_id'];
-$sensor_id = $_POST['sensor_id'];
-$value_type = $_POST['value_type'];
-$data = $_POST['data'];
+$device_id = $_POST['device_id'] ?? null;
+$sensor_id = $_POST['sensor_id'] ?? null;
+$value_type = $_POST['value_type'] ?? null;
+$data = $_POST['data'] ?? null;
+$valid_value_types = ['sensor_limit', 'sensor_limit_warn', 'sensor_limit_low_warn', 'sensor_limit_low'];
 
 if (! is_numeric($device_id)) {
     $message = 'Missing device id';
 } elseif (! is_numeric($sensor_id)) {
     $message = 'Missing sensor id';
+} elseif (! in_array($value_type, $valid_value_types, true)) {
+    $message = 'Invalid value type';
 } elseif (! isset($data)) {
     $message = 'Missing data';
+} elseif ($data !== '' && ! is_numeric($data)) {
+    $message = 'Only numeric values are allowed';
 } else {
     if (dbUpdate([$value_type => set_null($data), 'sensor_custom' => 'Yes'], 'sensors', '`sensor_id` = ? AND `device_id` = ?', [$sensor_id, $device_id]) >= 0) {
         $message = 'Sensor value updated';

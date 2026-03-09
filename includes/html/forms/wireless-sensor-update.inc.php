@@ -24,10 +24,22 @@ if (! Auth::user()->hasGlobalAdmin()) {
     ]));
 }
 
-if (! is_numeric($_POST['device_id']) || ! is_numeric($_POST['sensor_id']) || ! isset($_POST['data'])) {
+$valid_value_types = ['sensor_limit', 'sensor_limit_warn', 'sensor_limit_low_warn', 'sensor_limit_low'];
+
+if (
+    ! is_numeric($_POST['device_id'])
+    || ! is_numeric($_POST['sensor_id'])
+    || ! isset($_POST['data'])
+    || ! in_array($_POST['value_type'], $valid_value_types, true)
+) {
     exit(json_encode([
         'status' => 'error',
         'message' => 'Invalid values given',
+    ]));
+} elseif ($_POST['data'] !== '' && ! is_numeric($_POST['data'])) {
+    exit(json_encode([
+        'status' => 'error',
+        'message' => 'Only numeric values are allowed',
     ]));
 } else {
     $update = dbUpdate(

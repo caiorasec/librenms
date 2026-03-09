@@ -25,16 +25,22 @@ if (! Auth::user()->hasGlobalAdmin()) {
 }
 
 if (isset($_POST['sub_type']) && $_POST['sub_type'] == 'remove-custom') {
-    if (dbUpdate(['sensor_custom' => 'No'], 'wireless_sensors', '`sensor_id` = ?', [$_POST['sensor_id']])) {
+    if (dbUpdate([
+        'sensor_custom' => 'No',
+        'sensor_limit' => null,
+        'sensor_limit_warn' => null,
+        'sensor_limit_low_warn' => null,
+        'sensor_limit_low' => null,
+    ], 'wireless_sensors', '`sensor_id` = ?', [$_POST['sensor_id']])) {
         exit(json_encode([
             'status' => 'ok',
-            'message' => 'Custom limit removed',
+            'message' => 'Custom limits reset',
         ]));
     }
 
     exit(json_encode([
         'status' => 'error',
-        'message' => 'Could not remove custom. Check librenms.log',
+        'message' => 'Could not reset custom values. Check librenms.log',
     ]));
 } else {
     if (! is_numeric($_POST['device_id']) || ! is_numeric($_POST['sensor_id'])) {
